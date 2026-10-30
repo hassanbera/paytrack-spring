@@ -1,0 +1,17 @@
+name: paytrack-spring
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: paytrack
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: local-development-only
+    ports: ["127.0.0.1:55503:5432"]
+    volumes: ["db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d paytrack"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+volumes:
+  db:
