@@ -7,18 +7,22 @@
     "build": "ng build"
   },
   "dependencies": {
+    "@angular/animations": "^22.2.4",
     "@angular/common": "22.2.4",
     "@angular/compiler": "22.2.4",
     "@angular/core": "22.2.4",
     "@angular/forms": "22.2.4",
     "@angular/platform-browser": "22.2.4",
+    "@angular/router": "^22.2.4",
+    "ng-zorro-antd": "^22.1.2",
     "rxjs": "7.8.2",
     "tslib": "2.8.1"
   },
   "devDependencies": {
-    "@angular/build": "22.2.4",
+    "@angular/build": "^22.2.5",
     "@angular/cli": "22.2.4",
     "@angular/compiler-cli": "22.2.4",
+    "less": "^4.9.1",
     "typescript": "~6.0.2"
   }
 }
