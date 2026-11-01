@@ -8,6 +8,10 @@ Tahsilatın net bir resmi. Ödeme planlarını ve taksitleri tek yerde takip et.
 
 [Telefon görünümü](docs/mobile.png)
 
+## Arayüz
+
+**NG-ZORRO** · Koyu yeşil üst gezinme, açık finans yüzeyleri ve tahsilat tabloları. Tema sınırları ve doğrulama notları: [Arayüz sistemi](docs/ui.md).
+
 ## Özellikler
 
 - Müşteri bilgileriyle aylık ödeme planları

@@ -1,332 +1,330 @@
-<div class="app-shell">
-  <aside class="sidebar">
-    <a class="brand" href="/" aria-label="PayTrack ana sayfa"
-      ><span class="brand-icon">₺</span>PayTrack<span class="brand-dot"
-        >.</span
-      ></a
+<header class="product-header">
+  <a class="brand-link" href="/">PayTrack</a><span>Tahsilat yönetimi</span>
+</header>
+<main class="product-main">
+  <div class="page-heading">
+    <div>
+      <h1>Ödeme planları</h1>
+      <p class="subtitle">Planla, takip et. Nakit akışına netlik kat.</p>
+    </div>
+    <button
+      nz-button
+      nzType="primary"
+      class="primary"
+      (click)="panel.set('plan')"
     >
-    <div class="workspace">
-      <span class="avatar">B</span>
-      <div>
-        <strong>Çalışma alanım</strong><small>Takım çalışma alanı</small>
-      </div>
-    </div>
-    <p class="nav-label">ÇALIŞMA ALANI</p>
-    <nav>
-      <a href="/" class="active"
-        ><span>₺</span>Ödeme planları<span class="nav-indicator"></span
-      ></a>
-    </nav>
-    <div class="sidebar-note">
-      <span class="status-dot"></span>Her şey yerli yerinde.<small
-        >Bir sonraki adıma odaklan.</small
+      + Yeni plan
+    </button>
+  </div>
+  @if (error()) {
+    <div class="alert" role="alert">
+      {{ error()
+      }}<button
+        nz-button
+        nzType="default"
+        type="button"
+        class="quiet"
+        (click)="error.set('')"
+        aria-label="Hata bildirimini kapat"
       >
+        ×
+      </button>
     </div>
-  </aside>
-  <div class="main">
-    <header class="topbar">
-      <span
-        >Çalışma alanı <span class="crumb">/</span>
-        <strong>Ödeme planları</strong></span
-      ><span class="avatar">HB</span>
-    </header>
-    <main>
-      <div class="page-heading">
-        <div>
-          <p class="eyebrow">HER TAHSİLATIN BİR YERİ VAR.</p>
-          <h1>Ödeme planları</h1>
-          <p class="subtitle">Planla, takip et. Nakit akışına netlik kat.</p>
-        </div>
-        <button class="primary" (click)="panel.set('plan')">+ Yeni plan</button>
+  }
+  @if (notice()) {
+    <div class="notice" role="status">{{ notice() }}</div>
+  }
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-top">
+        Toplam plan<span class="metric-icon">▤</span>
       </div>
-      @if (error()) {
-        <div class="alert" role="alert">
-          {{ error()
-          }}<button
-            type="button"
-            class="quiet"
-            (click)="error.set('')"
-            aria-label="Hata bildirimini kapat"
+      <strong>{{ plans().length }}</strong
+      ><small>Takip edilen ödeme planları</small>
+    </div>
+    <div class="metric">
+      <div class="metric-top">
+        Planlanan tutar<span class="metric-icon">₺</span>
+      </div>
+      <strong style="font-size: 23px">{{ money(total()) }}</strong
+      ><small>Tüm planların toplamı</small>
+    </div>
+    <div class="metric">
+      <div class="metric-top">
+        Seçili plan / tahsil edilen<span class="metric-icon">✓</span>
+      </div>
+      <strong style="font-size: 23px">{{ money(paid()) }}</strong
+      ><small>Kısmi ödemeler dahil</small>
+    </div>
+    <div class="metric">
+      <div class="metric-top">
+        Seçili plan / kalan<span class="metric-icon">◷</span>
+      </div>
+      <strong style="font-size: 23px">{{
+        money((detail()?.plan?.totalCents || 0) - paid())
+      }}</strong
+      ><small>Tahsil edilmeyi bekleyen</small>
+    </div>
+  </div>
+  @if (panel() === "plan") {
+    <form class="panel form-panel" (ngSubmit)="save()">
+      <div class="form-head">
+        <h2>Yeni ödeme planı</h2>
+        <button
+          nz-button
+          nzType="default"
+          type="button"
+          class="quiet"
+          (click)="close()"
+        >
+          Kapat
+        </button>
+      </div>
+      <div class="form-grid">
+        <label
+          >Plan başlığı<input
+            nz-input
+            name="title"
+            [(ngModel)]="form.title"
+            maxlength="120"
+            required /></label
+        ><label
+          >Müşteri<input
+            nz-input
+            name="client"
+            [(ngModel)]="form.clientName"
+            maxlength="100"
+            required /></label
+        ><label
+          >E-posta<input
+            nz-input
+            name="email"
+            type="email"
+            [(ngModel)]="form.clientEmail"
+            maxlength="200" /></label
+        ><label
+          >Toplam tutar (₺)<input
+            nz-input
+            name="total"
+            inputmode="decimal"
+            [(ngModel)]="form.total"
+            placeholder="15000,00"
+            required /></label
+        ><label
+          >Taksit sayısı<input
+            nz-input
+            name="count"
+            type="number"
+            [(ngModel)]="form.count"
+            min="1"
+            max="60"
+            required /></label
+        ><label
+          >İlk vade<input
+            nz-input
+            name="first"
+            type="date"
+            [(ngModel)]="form.firstDueDate"
+            required
+        /></label>
+      </div>
+      <div class="form-actions">
+        <button nz-button nzType="primary" class="primary" [disabled]="busy()">
+          Planı oluştur</button
+        ><span class="help"
+          >Aylık taksitler, ay sonu ve kuruş farkları korunarak
+          hesaplanır.</span
+        >
+      </div>
+    </form>
+  }
+  <div class="two-pane">
+    <section class="panel">
+      <div class="toolbar">
+        <input
+          nz-input
+          class="search"
+          aria-label="Plan ara"
+          placeholder="Müşteri veya plan ara…"
+          [ngModel]="query()"
+          (ngModelChange)="query.set($event)"
+        />
+      </div>
+      <div class="list">
+        @for (p of visible(); track p.id) {
+          <button
+            class="list-item"
+            [class.selected]="detail()?.plan?.id === p.id"
+            (click)="select(p.id)"
           >
-            ×
+            <span class="tag">Ödeme planı</span><strong>{{ p.title }}</strong
+            ><small>{{ p.clientName }} · {{ money(p.totalCents) }}</small>
           </button>
-        </div>
-      }
-      @if (notice()) {
-        <div class="notice" role="status">{{ notice() }}</div>
-      }
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-top">
-            Toplam plan<span class="metric-icon">▤</span>
-          </div>
-          <strong>{{ plans().length }}</strong
-          ><small>Takip edilen ödeme planları</small>
-        </div>
-        <div class="metric">
-          <div class="metric-top">
-            Planlanan tutar<span class="metric-icon">₺</span>
-          </div>
-          <strong style="font-size: 23px">{{ money(total()) }}</strong
-          ><small>Tüm planların toplamı</small>
-        </div>
-        <div class="metric">
-          <div class="metric-top">
-            Seçili plan / tahsil edilen<span class="metric-icon">✓</span>
-          </div>
-          <strong style="font-size: 23px">{{ money(paid()) }}</strong
-          ><small>Kısmi ödemeler dahil</small>
-        </div>
-        <div class="metric">
-          <div class="metric-top">
-            Seçili plan / kalan<span class="metric-icon">◷</span>
-          </div>
-          <strong style="font-size: 23px">{{
-            money((detail()?.plan?.totalCents || 0) - paid())
-          }}</strong
-          ><small>Tahsil edilmeyi bekleyen</small>
-        </div>
+        }
       </div>
-      @if (panel() === "plan") {
-        <form class="panel form-panel" (ngSubmit)="save()">
-          <div class="form-head">
-            <h2>Yeni ödeme planı</h2>
-            <button type="button" class="quiet" (click)="close()">Kapat</button>
-          </div>
-          <div class="form-grid">
-            <label
-              >Plan başlığı<input
-                name="title"
-                [(ngModel)]="form.title"
-                maxlength="120"
-                required /></label
-            ><label
-              >Müşteri<input
-                name="client"
-                [(ngModel)]="form.clientName"
-                maxlength="100"
-                required /></label
-            ><label
-              >E-posta<input
-                name="email"
-                type="email"
-                [(ngModel)]="form.clientEmail"
-                maxlength="200" /></label
-            ><label
-              >Toplam tutar (₺)<input
-                name="total"
-                inputmode="decimal"
-                [(ngModel)]="form.total"
-                placeholder="15000,00"
-                required /></label
-            ><label
-              >Taksit sayısı<input
-                name="count"
-                type="number"
-                [(ngModel)]="form.count"
-                min="1"
-                max="60"
-                required /></label
-            ><label
-              >İlk vade<input
-                name="first"
-                type="date"
-                [(ngModel)]="form.firstDueDate"
-                required
-            /></label>
-          </div>
-          <div class="form-actions">
-            <button class="primary" [disabled]="busy()">Planı oluştur</button
-            ><span class="help"
-              >Aylık taksitler, ay sonu ve kuruş farkları korunarak
-              hesaplanır.</span
+      @if (!plans().length) {
+        <div class="empty">İlk ödeme planını oluştur.</div>
+      }
+    </section>
+    <section class="panel">
+      @if (detail(); as d) {
+        <div class="detail-head">
+          <div>
+            <h2>{{ d.plan.title }}</h2>
+            <p>
+              {{ d.plan.clientName }} ·
+              {{ d.plan.clientEmail || "E-posta eklenmemiş" }}
+            </p>
+            <div class="progress">
+              <span [style.width.%]="(paid() / d.plan.totalCents) * 100"></span>
+            </div>
+            <small class="help"
+              >{{ d.installments.length }} taksit · %{{
+                (paid() / d.plan.totalCents) * 100 | number: "1.0-0"
+              }}
+              tamamlandı</small
             >
           </div>
-        </form>
-      }
-      <div class="two-pane">
-        <section class="panel">
-          <div class="toolbar">
-            <input
-              class="search"
-              aria-label="Plan ara"
-              placeholder="Müşteri veya plan ara…"
-              [ngModel]="query()"
-              (ngModelChange)="query.set($event)"
-            />
-          </div>
-          <div class="list">
-            @for (p of visible(); track p.id) {
-              <button
-                class="list-item"
-                [class.selected]="detail()?.plan?.id === p.id"
-                (click)="select(p.id)"
-              >
-                <span class="tag">Ödeme planı</span
-                ><strong>{{ p.title }}</strong
-                ><small>{{ p.clientName }} · {{ money(p.totalCents) }}</small>
-              </button>
-            }
-          </div>
-          @if (!plans().length) {
-            <div class="empty">İlk ödeme planını oluştur.</div>
-          }
-        </section>
-        <section class="panel">
-          @if (detail(); as d) {
-            <div class="detail-head">
-              <div>
-                <h2>{{ d.plan.title }}</h2>
-                <p>
-                  {{ d.plan.clientName }} ·
-                  {{ d.plan.clientEmail || "E-posta eklenmemiş" }}
-                </p>
-                <div class="progress">
-                  <span
-                    [style.width.%]="(paid() / d.plan.totalCents) * 100"
-                  ></span>
-                </div>
-                <small class="help"
-                  >{{ d.installments.length }} taksit · %{{
-                    (paid() / d.plan.totalCents) * 100 | number: "1.0-0"
-                  }}
-                  tamamlandı</small
-                >
-              </div>
-              <strong class="balance">{{ money(d.plan.totalCents) }}</strong>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
+          <strong class="balance">{{ money(d.plan.totalCents) }}</strong>
+        </div>
+        <div class="table-wrap">
+          <nz-table [nzTemplateMode]="true" [nzShowPagination]="false">
+            <thead>
+              <tr>
+                <th>TAKSİT / VADE</th>
+                <th>TUTAR</th>
+                <th>KALAN</th>
+                <th>DURUM</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of d.installments; track row.installment.id) {
+                <tr>
+                  <td>
+                    <strong>#{{ row.installment.number }}</strong> ·
+                    {{ date(row.installment.dueDate) }}
+                  </td>
+                  <td>{{ money(row.installment.amountCents) }}</td>
+                  <td>
+                    {{
+                      money(
+                        row.installment.amountCents - row.installment.paidCents
+                      )
+                    }}
+                  </td>
+                  <td>
+                    <span
+                      class="delivery-status"
+                      [class.green]="
+                        row.installment.paidCents ===
+                        row.installment.amountCents
+                      "
+                      [class.red]="late(row.installment)"
+                      >{{
+                        row.installment.paidCents ===
+                        row.installment.amountCents
+                          ? "Ödendi"
+                          : late(row.installment)
+                            ? "Gecikti"
+                            : "Bekliyor"
+                      }}</span
+                    >
+                  </td>
+                  <td>
+                    @if (
+                      row.installment.paidCents < row.installment.amountCents
+                    ) {
+                      <button
+                        nz-button
+                        nzType="default"
+                        class="secondary"
+                        (click)="startPay(row.installment)"
+                      >
+                        Tahsilat
+                      </button>
+                    }
+                    <button
+                      nz-button
+                      nzType="default"
+                      class="quiet"
+                      (click)="
+                        history.set(
+                          history() === row.installment.id
+                            ? ''
+                            : row.installment.id
+                        )
+                      "
+                    >
+                      Geçmiş
+                    </button>
+                  </td>
+                </tr>
+                @if (history() === row.installment.id) {
                   <tr>
-                    <th>TAKSİT / VADE</th>
-                    <th>TUTAR</th>
-                    <th>KALAN</th>
-                    <th>DURUM</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of d.installments; track row.installment.id) {
-                    <tr>
-                      <td>
-                        <strong>#{{ row.installment.number }}</strong> ·
-                        {{ date(row.installment.dueDate) }}
-                      </td>
-                      <td>{{ money(row.installment.amountCents) }}</td>
-                      <td>
-                        {{
-                          money(
-                            row.installment.amountCents -
-                              row.installment.paidCents
-                          )
-                        }}
-                      </td>
-                      <td>
-                        <span
-                          class="badge"
-                          [class.green]="
-                            row.installment.paidCents ===
-                            row.installment.amountCents
-                          "
-                          [class.red]="late(row.installment)"
-                          >{{
-                            row.installment.paidCents ===
-                            row.installment.amountCents
-                              ? "Ödendi"
-                              : late(row.installment)
-                                ? "Gecikti"
-                                : "Bekliyor"
-                          }}</span
-                        >
-                      </td>
-                      <td>
-                        @if (
-                          row.installment.paidCents <
-                          row.installment.amountCents
-                        ) {
-                          <button
-                            class="secondary"
-                            (click)="startPay(row.installment)"
-                          >
-                            Tahsilat
-                          </button>
+                    <td colspan="5">
+                      <div class="history">
+                        @for (p of row.payments; track p.id) {
+                          <p>
+                            {{ date(p.createdAt) }} ·
+                            {{ money(p.amountCents) }} ·
+                            {{ p.note || "Tahsilat" }}
+                          </p>
+                        } @empty {
+                          <p>Henüz tahsilat yapılmadı.</p>
                         }
-                        <button
-                          class="quiet"
-                          (click)="
-                            history.set(
-                              history() === row.installment.id
-                                ? ''
-                                : row.installment.id
-                            )
-                          "
+                      </div>
+                    </td>
+                  </tr>
+                }
+                @if (payId === row.installment.id) {
+                  <tr>
+                    <td colspan="5">
+                      <form class="inline-form" (ngSubmit)="pay()">
+                        <label
+                          >Tutar (₺)<input
+                            nz-input
+                            name="amount"
+                            class="money-input"
+                            inputmode="decimal"
+                            [(ngModel)]="payAmount"
+                            required /></label
+                        ><label
+                          >Not<input
+                            nz-input
+                            name="note"
+                            [(ngModel)]="payNote"
+                            maxlength="300" /></label
+                        ><button
+                          nz-button
+                          nzType="primary"
+                          class="primary"
+                          [disabled]="busy()"
                         >
-                          Geçmiş
+                          Tahsilatı kaydet</button
+                        ><button
+                          nz-button
+                          nzType="default"
+                          type="button"
+                          class="quiet"
+                          (click)="payId = ''"
+                        >
+                          Vazgeç
                         </button>
-                      </td>
-                    </tr>
-                    @if (history() === row.installment.id) {
-                      <tr>
-                        <td colspan="5">
-                          <div class="history">
-                            @for (p of row.payments; track p.id) {
-                              <p>
-                                {{ date(p.createdAt) }} ·
-                                {{ money(p.amountCents) }} ·
-                                {{ p.note || "Tahsilat" }}
-                              </p>
-                            } @empty {
-                              <p>Henüz tahsilat yapılmadı.</p>
-                            }
-                          </div>
-                        </td>
-                      </tr>
-                    }
-                    @if (payId === row.installment.id) {
-                      <tr>
-                        <td colspan="5">
-                          <form class="inline-form" (ngSubmit)="pay()">
-                            <label
-                              >Tutar (₺)<input
-                                name="amount"
-                                class="money-input"
-                                inputmode="decimal"
-                                [(ngModel)]="payAmount"
-                                required /></label
-                            ><label
-                              >Not<input
-                                name="note"
-                                [(ngModel)]="payNote"
-                                maxlength="300" /></label
-                            ><button class="primary" [disabled]="busy()">
-                              Tahsilatı kaydet</button
-                            ><button
-                              type="button"
-                              class="quiet"
-                              (click)="payId = ''"
-                            >
-                              Vazgeç
-                            </button>
-                          </form>
-                        </td>
-                      </tr>
-                    }
-                  }
-                </tbody>
-              </table>
-            </div>
-          } @else {
-            <div class="empty">
-              <strong>Tahsilatın net bir resmi.</strong>Soldan bir plan seç veya
-              yeni bir plan oluştur.
-            </div>
-          }
-        </section>
-      </div>
-      <footer>
-        <strong>PayTrack.</strong><span>Detayları düzenle. Akışa odaklan.</span>
-      </footer>
-    </main>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </nz-table>
+        </div>
+      } @else {
+        <div class="empty">
+          <strong>Tahsilatın net bir resmi.</strong>Soldan bir plan seç veya
+          yeni bir plan oluştur.
+        </div>
+      }
+    </section>
   </div>
-</div>
+</main>

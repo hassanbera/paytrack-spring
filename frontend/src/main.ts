@@ -1,3 +1,6 @@
+import { NzButtonModule } from "ng-zorro-antd/button";
+import { NzInputModule } from "ng-zorro-antd/input";
+import { NzTableModule } from "ng-zorro-antd/table";
 import {
   Component,
   signal,
@@ -58,7 +61,13 @@ interface PlanDetail {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NzButtonModule,
+    NzInputModule,
+    NzTableModule,
+  ],
   templateUrl: "./app.html",
   host: { "(document:keydown.escape)": "close()" },
 })
